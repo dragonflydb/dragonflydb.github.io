@@ -1,0 +1,121 @@
+<!doctype html><html lang=en-us><head><meta charset=utf-8><meta name=robots content="all,follow"><meta name=googlebot content="index,follow,snippet,archive"><meta name=viewport content="width=device-width,initial-scale=1"><title>Redis Analysis - Part 1: Threading model</title><meta name=author content="Dragonfly"><meta name=keywords content="dragonfly,in-memory,datastore,scale"><meta name=description content="Dragonfly - Scalable in-memory datastore made simple"><meta name=generator content="Hugo 0.98.0"><link href=https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css rel=stylesheet integrity=sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3 crossorigin=anonymous><link href=/css/animate.css rel=stylesheet><link href=/css/style.turquoise.css rel=stylesheet id=theme-stylesheet><link href=/css/custom.css rel=stylesheet><link rel="shortcut icon" href=/img/favicon.ico type=image/x-icon><link rel=apple-touch-icon href=/img/apple-touch-icon.png><meta property="og:locale" content="en_us"><meta property="og:site_name" content="Dragonfly"><meta property="og:title" content="Redis Analysis - Part 1: Threading model"><meta property="og:type" content="article"><meta property="og:url" content="https://attos-io.github.io/blog/2021/12/09/single_threaded_redis/"><meta property="og:description" content="Dragonfly - Scalable in-memory datastore made simple"><meta property="og:image" content="https://attos-io.github.io/img/banners/jet.jpg"><meta property="og:image:type" content="image/jpg"><meta property="og:image:width" content="800"><meta property="og:image:height" content="466"><meta property="og:updated_time" content="2021-12-09T11:00:00+0300"><meta property="article:section" content="Engineering"><meta property="article:published_time" content="2021-12-09T11:00:00+0300"><meta property="article:modified_time" content="2021-12-09T11:00:00+0300"><meta name=twitter:card content="summary_large_image"><meta name=twitter:site content="@AttosIO"><meta name=twitter:title content="Redis Analysis - Part 1: Threading model"><meta name=twitter:image content="https://attos-io.github.io/img/banners/jet.jpg"><meta name=twitter:description content="Dragonfly - Scalable in-memory datastore made simple"><link rel=stylesheet href=//use.fontawesome.com/releases/v6.1.1/css/all.css><link href="//fonts.googleapis.com/css?family=Poppins:600,700,800,900" rel=stylesheet type=text/css><link href="//fonts.googleapis.com/css?family=Lato:100,300,400" rel=stylesheet type=text/css><link href=https://cdn.jsdelivr.net/npm/gridjs/dist/theme/mermaid.min.css rel=stylesheet><script>const columns=[{id:"name",name:"Command Name"},{id:"minVersion",name:"Redis Version"},{id:"dragonflyVersion",name:"Dragonfly version"}],generateInfo=e=>{const t=addMinVersion(getRedisCommandsFromCommandInfo(e));document.getElementById("wrapper").innerHTML="",new gridjs.Grid({columns,data:t,pagination:!0,sort:!0}).render(document.getElementById("wrapper"))}</script><title>Dragonfly</title></head><body><div id=all><header><div id=top><div class=container><div class=row><div class=col-xs-12>Try Dragonfly in your own environment&nbsp;<a href=/get_started data-animate-hover=pulse> >>></a></div></div></div></div></header><nav class="navbar navbar-expand-lg navbar-light bg-light"><div class=container-fluid><a class=navbar-brand href=/><img src=/img/attos-logo-3x.png alt="Redis Analysis - Part 1: Threading model logo" class="collapse navbar-collapse px-5">
+<img src=/img/attos-logo.png alt="Redis Analysis - Part 1: Threading model logo" class="d-xs-block d-md-none"></a>
+<button class=navbar-toggler type=button data-bs-toggle=collapse data-bs-target=.navbar-collapse aria-controls=navbarNavAltMarkup aria-expanded=false aria-label="Toggle navigation">
+<span class=navbar-toggler-icon></span></button><div class="collapse navbar-collapse justify-content-end px-5"><div class=navbar-nav><a class=nav-link href=/>Dragonfly</a>
+<a class="nav-link active" href=/blog/>Blog</a>
+<a class="nav-link git" href=https://github.com/romange/dragonfly><svg width="25" height="25" viewBox="0 0 25 25" xmlns="http://www.w3.org/2000/svg" style="position:relative;top:-2px"><path d="M13 2C6.9225 2 2 6.84 2 12.8093c0 4.7768 3.1515 8.8275 7.52125 10.2557C10.0712 23.1667 10.2729 22.8322 10.2729 22.5452 10.2729 22.2886 10.2638 21.6084 10.2592 20.7073 7.19933 21.3591 6.554 19.2572 6.554 19.2572 6.0535 18.0096 5.33025 17.6759 5.33025 17.6759 4.33383 17.0058 5.40725 17.0196 5.40725 17.0196 6.51183 17.0947 7.09208 18.1333 7.09208 18.1333c.98084 1.6528 2.57492 1.1752 3.20372.8993C10.3948 18.3332 10.6781 17.8574 10.9925 17.587 8.54958 17.3166 5.982 16.3871 5.982 12.2456c0-1.1798.42625-2.1441 1.13208-2.90035C6.99033 9.07208 6.61908 7.973 7.21033 6.48433c0 0 .92125-.28966 3.02497 1.10825C11.1153 7.35242 12.0503 7.23325 12.9853 7.22775 13.9203 7.23325 14.8553 7.35242 15.7353 7.59258c2.09-1.39791 3.0113-1.10825 3.0113-1.10825C19.3378 7.973 18.9666 9.07208 18.8566 9.34525c.7012.75625 1.1275 1.72055 1.1275 2.90035.0 4.1525-2.5713 5.0664-5.0188 5.3322C15.3503 17.9023 15.7078 18.5651 15.7078 19.578c0 1.4465-.0137 2.6088-.0137 2.9599C15.6941 22.8212 15.8866 23.1594 16.4503 23.0512 20.8512 21.6322 24 17.5787 24 12.8093 24 6.84 19.0748 2 13 2z" fill="#007a73"/></svg>Git</a>
+<a href=/get_started/ class="btn btn-template-main">Get Dragonfly</a></div></div></div></nav><div class=container><div id=heading-breadcrumbs><div class=container><div class=row><div class=col-md-12><h1>Redis Analysis - Part 1: Threading model</h1></div></div></div></div><div id=content><div class=container><div class=row><div class=col-md-9 id=blog-post><p class="text-muted text-uppercase mb-small text-right">By <a href=/authors/roman-gershman>Roman Gershman</a>
+December 9, 2021</p><div id=post-content><p>Following my previous post, we are going start with the &ldquo;hottest potato&rdquo; - single-threaded vs
+multi-threaded argument.</p><p>This question in the context of Redis has been raised quite a few times before, sometimes sparkling
+pretty heated discussions. See, for example<blockquote class=twitter-tweet><p lang=en dir=ltr>I was blocked and riduclued for saying Redis should be multi-threaded. Both by the community and the maker for years.<br><br>Ahem.<a href=https://t.co/Aom4CIYSaf>https://t.co/Aom4CIYSaf</a><br><br>But we already knew this would be the result, didn’t we? This is how modern computers work. It’s not really a debate.</p>&mdash; Kelly Sommers (@kellabyte) <a href="https://twitter.com/kellabyte/status/1111380252398280704?ref_src=twsrc%5Etfw">March 28, 2019</a></blockquote><script async src=https://platform.twitter.com/widgets.js></script>
+and <img src=/img/redis-twitter.png alt=replies>.</p><p>Eventually, Salvatore has decided to allow the offloading of I/O processing onto additional threads.
+But as I said before, only a single designated thread handles the main Redis dictionary.</p><p>It seems, however, that was not enough for the community. Two and half years ago,
+a couple of talented folks from Canada decided to change the status quo and
+created a multi-threaded Redis fork called <em>KeyDb</em>.
+KeyDb allows multiple threads to access the Redis dictionary by protecting it with spinlocks.
+See their <a href=https://medium.com/@john_63123/redis-should-be-multi-threaded-e28319cab744>introductionary post</a>
+about this.</p><p>In the previous post I mentioned the following arguments why Redis was built as single-threaded:</p><ol><li>It preserves low tail latency by avoiding contention on locks.</li><li>Redis Cluster provides horizontal scale, which should be as good
+as vertical scale if not better: N single-core machines are equivalent to a single process spanning N cores.</li><li>Pipelining gives you more throughput. A redis client can pipeline requests reaching ~1M qps,
+which is an order of magnitude higher than the regular traffic throughput.</li><li>Room for the upside on a single machine is limited anyway.</li><li>Single-threaded is simple, multi-threaded is complicated.</li></ol><p>I think there are great benefits of having multi-threaded databases, and I will try to
+challenge these arguments. But before we continue forward, let&rsquo;s agree on a few terms:</p><p><em>A vertically scalable system</em> is a system that can scale <em>almost</em> linearly with its performance metrics
+(aka requests per second) as a function of available CPUs on a single server.
+<em>Horizontally scalable system</em> is a distributed system that can run on multiple nodes/processes
+and scale <em>almost</em> linearly with a number of nodes.</p><p>I assert the following claims:</p><ol><li>A vertically scalable system is more cost-efficient than its equivalent horizontally
+scalable configuration until it reaches its physical limits on a single server.</li><li>In order to reach the full potential of the modern hardware, and preserve
+the low latency property, a system should be designed as a shared-nothing architecture, i.e. avoid
+locking and contention, along with the original philosophy of Redis.</li></ol><p>I will try to prove (1). I base (2) on the empirical evidence gathered in the
+research community and on lessons learned from other well-designed systems like <a href=https://www.scylladb.com/product/technology/shard-per-core-architecture/>ScyllaDb</a> or <a href=http://twitter.github.io/pelikan/2016/separation-concerns.html>Twitter&rsquo;s Pelikan</a>.</p><h2 id=vertical-scale-vs-horizontal-scale>Vertical scale vs Horizontal scale</h2><p>Imagine you are in the business of selling sugar.
+You need to choose between renting a warehouse that can hold 10,000kg of sugar vs 10 warehouses
+that can hold 1000kg each. The price of smaller warehouses is precisely a tenth of the bigger one.
+It seems that there is no difference, right? However, if you choose to rent 10 smaller warehouses,
+you will see that after some time, some, but not all of them, will be nearly empty, and you need to send trucks to fill them up. Why? Because the randomness of nature dictates that
+you have almost zero chance that all warehouses are depleted at precisely the same rate.
+So you need to spend resources to fill some of the warehouses. Then you will spend resources to fill others and so on. Moreover, you need to staff those warehouses: you might need 2.5 people
+per place on average, but you will need to round it up and hire 3 folks in every place.
+There will be high-pressure days when your workers will work like crazy,
+while during other days, they will do nothing. Let&rsquo;s do some math to understand how to model those inefficiencies.</p><p>Let&rsquo;s assume that $X_1&mldr;X_n$ are independent random variables. Then the expected mean and variance
+of their sum is the sum of their means and variances:</p><p>$$ \mathbb{E} \biggl[ \sum_{i=1}^n X_i \biggr] = \sum_{i=1}^n {E[X_i]}$$
+$$ Var \biggl[ \sum_{i=1}^n X_i \biggr] = \sum_{i=1}^n {Var[X_i]} $$</p><p>These formulas are basic rules in probability theory, see <a href=https://en.wikipedia.org/wiki/Algebra_of_random_variables>here</a>, for example. Specifically, for independent random variables with
+the same mean $\mu$ and standard deviation $\sigma$, we get:</p><p>$$ \mathbb{E} \biggl[ \sum_{i=1}^n X_i \biggr] = \sum_{i=1}^n {E[X_i]} = \sum_{i=1}^n \mu = n* \mu $$</p><p>$$ Var \biggl[ \sum_{i=1}^n X_i \biggr] = \sum_{i=1}^n {Var[X_i]} = \sum_{i=1}^n \sigma^2 = n*\sigma^2 $$</p><p>The last equation can be rewritten as $ StdDev \biggl[\sum_{i=1}^n X_i \biggr] = \sqrt n * \sigma $.</p><p>These equations prove the so-called <code>square root staffing law</code> in queueing theory, which
+explains why provisioning a bigger system is more efficient than provisioning a few smaller ones
+with equivalent capacity.</p><p>Indeed, when we provision a system that handles the load distributed as $(\mu, \sigma)$,
+we usually take an additional margin, say, twice the standard deviation, to cope with
+the intrinsic stochastic variability of that load. With $n$ warehouses, we can model
+their load as $n$ independent variables distributing as $(\mu, \sigma)$,
+therefore, in order to cope with $n * \mu$ effective load,
+we will need to staff $2 n \sigma$ additional resources.
+However, a single warehouse that handles the load $(n \mu, \sqrt n \sigma)$ needs
+only $2 \sqrt n \sigma$ resources to cover the same margin. The bigger warehouse is, the larger
+the difference between $\sqrt n \sigma$ and $n \sigma$.</p><p>There are quite a few articles on the internet and lots of academic research in this area.
+See <a href=https://www.networkpages.nl/the-golden-rule-of-staffing-in-contact-centers/>this post</a>, for example.</p><p>Obviously, the vertical scale is equivalent to renting a bigger warehouse, and the horizontal scale is
+equivalent to provisioning multiple smaller places.</p><p>Let&rsquo;s switch back to the memory-store example. Suppose we provision 9 nodes that are expected to
+host 12GB of data <em>on average</em> with the standard deviation - 2GB. We would take servers with
+<code>12GB+2*2GB=16GB</code> capacity, in total <code>144GB</code> with <code>36GB</code> margin. With a single server,
+however, we would need <code>108 + sqrt(9) * 4 = 120GB</code>. We just reduced the overall cost of the system
+by 17%. And if 17% seems not much, we can compare a single server with arbitrary many <code>n</code> servers
+of $\frac 1 n$ capacity. With <code>n</code> large enough, the standard deviation becomes the significant
+factor compared to the average load. For example, 108 nodes that host 108GB overall, would
+need to sustain load $L(\mu=1, \sigma=0.577)$, thus we would need to provision <code>108*(1 + 2*0.577) = 232GB</code>
+which is 93% higher than the single server cost.</p><p>So far, I have talked about economy of scale and why pooling resources is more efficient than employing
+multiple independent capacities. There are additional factors that increase the total cost of ownership
+for multi-node system: I believe that any experienced devop would agree that managing a fleet of <code>N</code> servers
+is more complicated than managing a single server just because of moving parts: The chance that at least one of the servers will fail is approximately <code>N</code> time bigger than for a single machine.
+In addition, the horizontally scalable system might impose additional restrictions on how the system is used. Specifically, with Redis - Redis Cluster does not allow transactions or multi-key operations covering
+multiple nodes, it lacks multi-database support, and it can not issue consistent management operations
+like <code>flushdb</code>, <code>save</code> across the cluster.</p><p>The goal of this section is not to persuade you that vertical scale is strictly better than horizontal scale -
+obviously, the vertical scale is bounded by the physical limits of its host and can not always be chosen.
+However, when there is a choice - it can be the much simpler and most cost-efficient alternative to splitting
+your workloads across separate nodes.</p><h2 id=shared-nothing-architecture>Shared-nothing architecture</h2><p><code>“Hardware on which modern workloads must run is remarkably different from the hardware on which current programming paradigms depend, and for which current software infrastructure is designed.”</code> - From Scylla blog.</p><p>Share-nothing architecture is a methodology to build a system in such way that its state is partitioned
+among multiple processors, and each processor can execute its work independently
+from others. Some prominent examples of shared-nothing architecture:
+a) Map-Reduce is a distributed processing framework that processes huge amounts of data over multiple independent workers.
+b) Redis Cluster is comprised of independent Redis nodes, where each one of them can perform without relying on others.
+c) ScyllaDb is a Cassandra clone that partitions its server database over CPUs in such a way that each CPU
+thread consistently handles the same partition. See more info about their <a href=http://seastar.io/shared-nothing/>open-sourced Seastar framework</a>
+d) Similarly, Envoy is a prominent proxy server that <a href=https://blog.envoyproxy.io/envoy-threading-model-a8d44b922310>uses thread-local storage</a> to minimize contention between multiple threads inside its process.</p><p>Shared-nothing architecture can be designed over multiple nodes like with (a) and (b) or within a single
+process like with (c) and (d).</p><p>In our case, I believe that memory store can be designed as a multi-threaded, single-process system
+that utilizes the underlying CPUs using shared-nothing architecture. In other words,
+every cpu thread will handle its dictionary partition shard. Other threads can not access directly the data-structures they do not own. If a thread needs to write or read from a dictionary managed by another thread,
+it achieves it by sending a message to the owner via a dedicated message bus.
+This architecture is not novel - it appears a lot in technical papers, and became mainstream
+thanks to ScyllaDb design.</p><p>Any mature database needs to perform operations equivalent to Redis <code>flushdb</code>,
+<code>save</code>, <code>load</code> etc. It also needs to perform resize or compaction operations periodically.
+With the single-threaded architecture, it means that a single CPU is involved in processing all this data
+which heavily reduces database resilience. This brings us to another significant benefit for shared-nothing architecture with the thread-per-core threading model, which is often neglected.
+Modern servers maintain a bounded ratio of CPU vs memory.
+Say, in AWS, <code>r5</code> family has 1:8 ratio, <code>m5</code> family has 1:4. Similarly, in GCP <code>n2</code> family maintains
+ratios between 1-8 GB per vcpu. Therefore, with the thread-per-core model, each thread handles
+at most <code>K</code> GB of workload, which means that a database stays resilient whether it&rsquo;s 8GB or
+860 GB on a single machine.</p><h2 id=benchmarks>Benchmarks</h2><p>This section addresses arguments (3) and (4) from the beginning of the post,
+namely how much upside we can bring by employing shared-nothing architecture using modern cloud
+servers. For that, I will use a toy redis-like memory store called <a href=https://github.com/romange/midi-redis>midi-redis</a>. <a href=https://github.com/romange/mini-redis>midi-redis</a> is similar to rust tokio <a href=https://github.com/tokio-rs/mini-redis>mini-redis</a> - i.e. it&rsquo;s built to demonstrate the capabilities of the underlying IO library
+by implementing a subset of redis/memcached commands.</p><p>Specifically, midi-redis supports <code>GET</code>, <code>SET</code>, <code>PING</code>, and <code>DEBUG POPULATE</code> commands.
+It also has complimentary support for memcached <code>GET</code> and <code>SET</code> commands and pipeline mode for both protocols.</p><p>The underlying I/O library that powers <code>midi-redis</code> is <a href=https://github.com/romange/helio>helio</a>
+that uses linux io-uring api underneath. <code>helio</code> is specially designed for
+shared-nothing architectures and it is the evolution of my previous library <a href=https://github.com/romange/gaia>GAIA</a>.</p><p>I performed benchmarking of <code>midi-redis</code> on a variety of instances on the AWS cloud.
+The point is not to evaluate <code>midi-redis</code> but to show the true potential of the hardware vs what
+Redis gives us on this hardware. Please, treat these numbers as directional only -
+I run each load-test only once, so I believe there is some variance that could affect numbers in +-15% range. <code>redis-1</code> bar in the graph represents Redis 6 with the <code>io-threads=1</code> configuration, and <code>redis-8</code> denotes
+<code>io-threads=8</code> configuration. Redis results were similar on all instance types,
+therefore I used the <code>redis-1</code> run on <code>c5.18xlarge</code> as my relative baseline for all other runs.</p><p>I used read-only traffic to minimize the influence of memory allocations and
+database resizes on the results. Also, I run &ldquo;debug populate 10000000&rdquo; command before each run
+to fill a server under test with data. Finally, I run <a href=https://github.com/RedisLabs/memtier_benchmark>memtier_benchmark</a> from 3 client machines in the same zone with the following configuration:
+<code>--key-prefix=key: --key-pattern=P:P --ratio 0:1 -n 2000000</code>. The number of threads and connections
+for <code>memtier_benchmark</code> were chosen to maximize the throughput of the server under test and were different
+for each instance type.</p><p>My first graph shows throughput for regular traffic without pipelined requests:
+<img src=/img/throughput-p1.png alt=no-pipeline></p><p>You can see that midi-redis running most network-capable AWS instance c6gn.16xlarge has the throughput
+that is >20 times higher than <code>redis-1</code> and >10 times higher than <code>redis-8</code>.</p><p>My next graph shows the throughput of instances with pipeline mode when <code>memtier_benchmark</code> sends bursts
+of 10 requests at once (<code>--pipeline 10</code>): <img src=/img/throughput-p10.png alt=pipeline-10>
+Here, <code>c6gn.16xlarge</code> has seven times more throughput reaching a staggering 7.4M qps. Interestingly,
+<code>redis-8</code> is a bit slower than <code>redis-1</code> because Redis main thread becomes the bottleneck for pipelined traffic.
+And <code>redis-8</code> spends additional cpu for coordination with its io-threads. <code>midi-redis</code> on the other hand,
+splits its dictionary between all its threads, reduces their communication to a minimum,
+and scales its performance much better.</p><p>I do not know if a factor of 20 or a factor of 7 sounds impressive to you, but please remember that
+Redis 6 is the product of a decade of development and optimizations. Even 5%, 10% of incremental improvement is significant here. By changing the foundation, we allow potential
+2000% upside for the non-pipeline case. Moreover, with time we will benefit from additional
+tailwinds from hardware advancements - with better networking and more cpus we will see
+even higher rates.</p><p>The speed of a car is 140 km/h, the speed of a jet plane is 950 km/h and the speed of sound is 1235 km/h.
+If Redis is a fast car, then we could fly instead on a supersonic plane.</p></div></div><div class=col-md-3><nav class="navbar navbar-expand-lg navbar-light bg-light"><div class=container-fluid><div class="collapse navbar-collapse justify-content-center px-5"><div class=navbar-nav><a class=px-2 href=/categories/announcement>ANNOUNCEMENT</a>
+<a class=px-2 href=/categories/engineering>ENGINEERING</a></div></div></div></nav></div></div></div></div></div><div id=copyright><div class=container><div class=col-md-12><p class=pull-left>Copyright (c) 2022 - 2022, Attos; all rights reserved.</p><p class=pull-right>Template by <a href=https://bootstrapious.com/p/universal-business-e-commerce-template>Bootstrapious</a>.
+Ported to Hugo by <a href=https://github.com/devcows/hugo-universal-theme>DevCows</a>.</p></div></div></div></div><script src=/js/commands.js></script>
+<script src=https://cdn.jsdelivr.net/npm/gridjs/dist/gridjs.umd.js></script></body></html>

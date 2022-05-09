@@ -1,0 +1,157 @@
+:root {
+    --primary-accent: #4fbfa8;
+    --navbar-border-top: #2d7b6b;
+    --button-border: #389985;
+    --link-focus: #348e7b;
+    --form-shadow: rgba(79, 191, 168, 0.6);
+    --pagination-bg: #bfe8df;
+    --link-hover-bg: #3aa18c;
+    --navbar-focus: #9adacd;
+    --background-1: #b1f9d3;
+    --background-2: #c3ffba;
+    --background-3: #ebffb4;
+    --background-4: #c6fdc3;
+    --background-5: #a9ffdf;
+    
+
+    --c-1: #BEF621;
+  --c-2: #241E17;
+  --c-3: #007A73;
+  --c-4: #39F46A;
+  --c-5: #E4FF44;
+  --c-6: #DEEAE9;
+  --c-7: #FFFFFF;
+  --text-1: #18262d;
+  --text-2: #007a73;
+
+  }
+
+body {
+    background-image: linear-gradient(to bottom, #e3ffea, #fff 25%);
+}
+
+h1,h2,h3,h4 {
+    font-family: Poppins;
+}
+
+p {
+    font-family: Lato;
+}
+
+
+/*
+Top Navbar related
+*/
+
+nav .btn-template-main {
+    padding: 10px 20px;
+    text-transform: none;
+    margin-inline-start: 30px;
+}
+
+nav a {
+  font-family: Poppins;
+  font-size: 16px;
+  text-decoration: none;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+}
+
+.navbar-light .navbar-nav .nav-link.git {
+    color: #007a73;
+}
+
+nav img {
+    max-height: 42px;    
+}
+
+
+.home-banner {
+    padding-top: 50px;    
+}
+
+.home-banner .btn-template-main {
+    margin: 12px 0px 0px 0px;
+    padding: 11px 85px 14px 85px;
+    text-transform: capitalize;
+    font-size: 16px;
+}
+
+.home-banner h1 {    
+    font-size: 42px;
+    font-weight: 700;
+    line-height: 1.07;
+    letter-spacing: 0.09px;
+    color: var(--text-1);
+}
+
+.home-banner h4 {
+    font-size: 18px;
+    font-weight: 600;
+    line-height: 1.44;
+    letter-spacing: 0.04px;
+    color: var(--text-1);
+}
+
+/**
+Features related
+*/
+.features {
+    background: url('../img/features-background.svg') center center repeat;
+}
+
+.features h1 {
+    font-size: 38px;
+    padding-bottom: 30px;
+}
+
+.features h3 {
+    font-size: 24px;
+    text-transform: none;    
+}
+
+.features .box-simple img {
+    height: 90px;    
+}
+
+.features .box-simple p {
+    color: var(--text-1);
+    font-weight: 400;
+    line-height: 26px;
+    font-size: 18px;
+}
+
+/**
+Benefits related
+*/
+.benefits {
+    background: transparent;
+}
+
+.benefits .row {
+    padding-bottom: 100px;
+}
+
+.benefits h3 {
+    font-size: 38px;
+    padding-bottom: 30px;
+}
+
+.benefits p {
+    font-size: 18px;
+    font-weight: 400;
+    text-transform: none;    
+}
+
+.benefits img {
+    width:500px;
+}
+
+
+/**
+BLOG
+*/
+.card-footer {
+    border-top: transparent;
+}
+
