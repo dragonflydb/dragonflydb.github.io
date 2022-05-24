@@ -37,13 +37,24 @@ const addMinVersion = (commands) => {
 
 /**
  * 
- * @param {number} version 
+ * @param {string} version 
  * @returns An array holding command names that are supported in the given version
  */
 const getCommandNamesArrFilterByVersion = (version) => {
     return Object.keys(redisCommandsList)
-        .filter((key) => redisCommandsList[key]["since"] < String(version))
+        .filter((key) => redisCommandsList[key]["since"] <= version)
         .map(key => key);
+}
+
+const getRedisVersions = () => {
+    var result = [];
+    Object.keys(redisCommandsList).forEach(element => {
+        var version = redisCommandsList[element]["since"];        
+        if (!result.includes(version)) {
+            result.push(version);
+        }
+    });
+    return result;
 }
 
 let redisCommandsList = {
