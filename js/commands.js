@@ -9878,6 +9878,7 @@ let redisCommandsList = {
     "PSUBSCRIBE": {
         "summary": "Listen for messages published to channels matching the given patterns",
         "since": "2.0.0",
+        "dragonfly_since" : "0.1",
         "group": "pubsub",
         "complexity": "O(N) where N is the number of patterns the client is already subscribed to.",
         "acl_categories": [
@@ -10153,6 +10154,7 @@ let redisCommandsList = {
     "PUNSUBSCRIBE": {
         "summary": "Stop listening for messages posted to channels matching the given patterns",
         "since": "2.0.0",
+        "dragonfly_since" : "0.1",
         "group": "pubsub",
         "complexity": "O(N+M) where N is the number of patterns the client is already subscribed and M is the number of total patterns subscribed in the system (by any client).",
         "acl_categories": [
@@ -15546,6 +15548,7 @@ let redisCommandsList = {
     "ZINTERSTORE": {
         "summary": "Intersect multiple sorted sets and store the resulting sorted set in a new key",
         "since": "2.0.0",
+        "dragonfly_since" : "0.1",
         "group": "sorted-set",
         "complexity": "O(N*K)+O(M*log(M)) worst case with N being the smallest input sorted set, K being the number of input sorted sets and M being the number of elements in the resulting sorted set.",
         "acl_categories": [
@@ -17069,6 +17072,7 @@ let redisCommandsList = {
     "ZUNIONSTORE": {
         "summary": "Add multiple sorted sets and store the resulting sorted set in a new key",
         "since": "2.0.0",
+        "dragonfly_since" : "0.1",
         "group": "sorted-set",
         "complexity": "O(N)+O(M log(M)) with N being the sum of the sizes of the input sorted sets, and M being the number of elements in the resulting sorted set.",
         "acl_categories": [
