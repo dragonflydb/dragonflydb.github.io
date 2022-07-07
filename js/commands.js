@@ -10017,6 +10017,7 @@ let redisCommandsList = {
     "PUBSUB": {
         "summary": "A container for Pub/Sub commands",
         "since": "2.8.0",
+        "dragonfly_since" : "0.4",
         "group": "pubsub",
         "complexity": "Depends on subcommand.",
         "acl_categories": [
@@ -10027,6 +10028,7 @@ let redisCommandsList = {
     "PUBSUB CHANNELS": {
         "summary": "List active channels",
         "since": "2.8.0",
+        "dragonfly_since" : "0.4",
         "group": "pubsub",
         "complexity": "O(N) where N is the number of active channels, and assuming constant time pattern matching (relatively short channels and patterns)",
         "acl_categories": [
@@ -13532,6 +13534,7 @@ let redisCommandsList = {
     "XADD": {
         "summary": "Appends a new entry to a stream",
         "since": "5.0.0",
+        "dragonfly_since" : "0.3",
         "group": "stream",
         "complexity": "O(1) when adding a new entry, O(N) when trimming where N being the number of entries evicted.",
         "history": [
@@ -13852,6 +13855,7 @@ let redisCommandsList = {
     "XDEL": {
         "summary": "Removes the specified entries from the stream. Returns the number of items actually deleted, that may be different from the number of IDs passed in case certain IDs do not exist.",
         "since": "5.0.0",
+        "dragonfly_since" : "0.3",
         "group": "stream",
         "complexity": "O(1) for each single item to delete in the stream, regardless of the stream size.",
         "acl_categories": [
@@ -13900,6 +13904,7 @@ let redisCommandsList = {
     "XGROUP": {
         "summary": "A container for consumer groups commands",
         "since": "5.0.0",
+        "dragonfly_since" : "0.3",
         "group": "stream",
         "complexity": "Depends on subcommand.",
         "acl_categories": [
@@ -13910,6 +13915,7 @@ let redisCommandsList = {
     "XGROUP CREATE": {
         "summary": "Create a consumer group.",
         "since": "5.0.0",
+        "dragonfly_since" : "0.3",
         "group": "stream",
         "complexity": "O(1)",
         "history": [
@@ -14041,6 +14047,7 @@ let redisCommandsList = {
     "XGROUP DELCONSUMER": {
         "summary": "Delete a consumer from a consumer group.",
         "since": "5.0.0",
+        "dragonfly_since" : "0.3",
         "group": "stream",
         "complexity": "O(1)",
         "acl_categories": [
@@ -14091,6 +14098,7 @@ let redisCommandsList = {
     "XGROUP DESTROY": {
         "summary": "Destroy a consumer group.",
         "since": "5.0.0",
+        "dragonfly_since" : "0.3",
         "group": "stream",
         "complexity": "O(N) where N is the number of entries in the group's pending entries list (PEL).",
         "acl_categories": [
@@ -14137,6 +14145,7 @@ let redisCommandsList = {
     "XGROUP HELP": {
         "summary": "Show helpful text about the different subcommands",
         "since": "5.0.0",
+        "dragonfly_since" : "0.3",
         "group": "stream",
         "complexity": "O(1)",
         "acl_categories": [
@@ -14152,6 +14161,7 @@ let redisCommandsList = {
     "XGROUP SETID": {
         "summary": "Set a consumer group to an arbitrary last delivered ID value.",
         "since": "5.0.0",
+        "dragonfly_since" : "0.3",
         "group": "stream",
         "complexity": "O(1)",
         "history": [
@@ -14225,6 +14235,7 @@ let redisCommandsList = {
     "XINFO": {
         "summary": "A container for stream introspection commands",
         "since": "5.0.0",
+        "dragonfly_since" : "0.3",
         "group": "stream",
         "complexity": "Depends on subcommand.",
         "acl_categories": [
@@ -14284,6 +14295,7 @@ let redisCommandsList = {
     "XINFO GROUPS": {
         "summary": "List the consumer groups of a stream",
         "since": "5.0.0",
+        "dragonfly_since" : "0.3",
         "group": "stream",
         "complexity": "O(1)",
         "history": [
@@ -14332,6 +14344,7 @@ let redisCommandsList = {
     "XINFO HELP": {
         "summary": "Show helpful text about the different subcommands",
         "since": "5.0.0",
+        "dragonfly_since" : "0.3",
         "group": "stream",
         "complexity": "O(1)",
         "acl_categories": [
@@ -14409,6 +14422,7 @@ let redisCommandsList = {
     "XLEN": {
         "summary": "Return the number of entries in a stream",
         "since": "5.0.0",
+        "dragonfly_since" : "0.3",
         "group": "stream",
         "complexity": "O(1)",
         "acl_categories": [
@@ -14537,6 +14551,7 @@ let redisCommandsList = {
     "XRANGE": {
         "summary": "Return a range of elements in a stream, with IDs matching the specified IDs interval",
         "since": "5.0.0",
+        "dragonfly_since" : "0.3",
         "group": "stream",
         "complexity": "O(N) with N being the number of elements being returned. If N is constant (e.g. always asking for the first 10 elements with COUNT), you can consider it O(1).",
         "history": [
@@ -14762,6 +14777,7 @@ let redisCommandsList = {
     "XREVRANGE": {
         "summary": "Return a range of elements in a stream, with IDs matching the specified IDs interval, in reverse order (from greater to smaller IDs) compared to XRANGE",
         "since": "5.0.0",
+        "dragonfly_since" : "0.3",
         "group": "stream",
         "complexity": "O(N) with N being the number of elements returned. If N is constant (e.g. always asking for the first 10 elements with COUNT), you can consider it O(1).",
         "history": [
@@ -14824,6 +14840,7 @@ let redisCommandsList = {
     "XSETID": {
         "summary": "An internal command for replicating stream values",
         "since": "5.0.0",
+        "dragonfly_since" : "0.3",
         "group": "stream",
         "complexity": "O(1)",
         "history": [
