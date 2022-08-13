@@ -103,11 +103,9 @@ database resizes on the results. Also, I run &ldquo;debug populate 10000000&rdqu
 to fill a server under test with data. Finally, I run <a href=https://github.com/RedisLabs/memtier_benchmark>memtier_benchmark</a> from 3 client machines in the same zone with the following configuration:
 <code>--key-prefix=key: --key-pattern=P:P --ratio 0:1 -n 2000000</code>. The number of threads and connections
 for <code>memtier_benchmark</code> were chosen to maximize the throughput of the server under test and were different
-for each instance type.</p><p>My first graph shows throughput for regular traffic without pipelined requests:
-<img src=img/throughput-p1.png alt=no-pipeline></p><p>You can see that midi-redis running most network-capable AWS instance c6gn.16xlarge has the throughput
+for each instance type.</p><p>My first graph shows throughput for regular traffic without pipelined requests:<figure><img src=img/throughput-p1.png alt=no-pipeline width=90%></figure></p><p>You can see that midi-redis running most network-capable AWS instance c6gn.16xlarge has the throughput
 that is >20 times higher than <code>redis-1</code> and >10 times higher than <code>redis-8</code>.</p><p>My next graph shows the throughput of instances with pipeline mode when <code>memtier_benchmark</code> sends bursts
-of 10 requests at once (<code>--pipeline 10</code>): <img src=img/throughput-p10.png alt=pipeline-10>
-Here, <code>c6gn.16xlarge</code> has seven times more throughput reaching a staggering 7.4M qps. Interestingly,
+of 10 requests at once (<code>--pipeline 10</code>):<figure><img src=img/throughput-p10.png alt=pipeline-10 width=90%></figure>Here, <code>c6gn.16xlarge</code> has seven times more throughput reaching a staggering 7.4M qps. Interestingly,
 <code>redis-8</code> is a bit slower than <code>redis-1</code> because Redis main thread becomes the bottleneck for pipelined traffic.
 And <code>redis-8</code> spends additional cpu for coordination with its io-threads. <code>midi-redis</code> on the other hand,
 splits its dictionary between all its threads, reduces their communication to a minimum,
