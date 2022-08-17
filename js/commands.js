@@ -10931,6 +10931,7 @@ let redisCommandsList = {
     "SCAN": {
         "summary": "Incrementally iterate the keys space",
         "since": "2.8.0",
+        "dragonfly_since" : "0.1",
         "group": "generic",
         "complexity": "O(1) for every call. O(N) for a complete iteration, including enough command calls for the cursor to return back to 0. N is the number of elements inside the collection.",
         "history": [
